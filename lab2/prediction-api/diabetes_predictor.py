@@ -20,11 +20,11 @@ class DiabetesPredictor:
                 # assume the model file name as model.pkl
                 model_repo = os.environ['MODEL_REPO']
                 file_path = os.path.join(model_repo, "model.pkl")
-                self.model = pickle.load(open(file_path, 'rb'))
+                self.load_model(file_path)
             except KeyError:
                 print("MODEL_REPO is undefined")
                 # Otherwise, use the local model (in prediction-api folder)
-                self.model = pickle.load(open('model.pkl', 'rb'))
+                self.load_model('model.pkl')
 
         df = pd.read_json(StringIO(json.dumps(prediction_input)), orient='records')
         xNew = df[['ntp', 'pgc', 'dbp', 'tsft', 'si', 'bmi', 'dpf', 'age']]
@@ -33,5 +33,7 @@ class DiabetesPredictor:
         logging.info(y_pred[0])
         status = (y_pred[0] > 0.5)
         print(status)
-        # return the prediction outcome as a json message. 200 is HTTP status code 200, indicating successful completion
-        return jsonify({'result': str(status)}), 200
+        return status
+
+    def load_model(self, file_path):
+        self.model = pickle.load(open(file_path, 'rb'))

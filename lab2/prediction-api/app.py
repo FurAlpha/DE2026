@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, request
+from flask import Flask, request, jsonify
 
 from diabetes_predictor import DiabetesPredictor
 
@@ -12,7 +12,9 @@ app.config["DEBUG"] = True
 def predict_str():
     # the prediction input data in the message body as a JSON payload
     prediction_inout = request.get_json()
-    return dp.predict_single_record(prediction_inout)
+    status = dp.predict_single_record(prediction_inout)
+    # return the prediction outcome as a json message. 200 is HTTP status code 200, indicating successful completion
+    return jsonify({'result': str(status)}), 200
 
 
 dp = DiabetesPredictor()
