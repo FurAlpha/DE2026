@@ -275,6 +275,33 @@ def compile_pipeline(target_file):
     compiler.Compiler().compile(pipeline_func=ml_pipeline,
                                 package_path=target_file)
 
+# This is only for testing - run the pipeline via CI/CD as we did in Lab4 Live
+def _run_pipeline():
+    # The Google Cloud project that this pipeline runs in.
+    PROJECT_ID = "your project id"
+    # The region that this pipeline runs in
+    REGION = "us-central1"
+    # Specify a Cloud Storage URI that your pipelines service account can access. The artifacts of your pipeline runs are stored within the pipeline root.
+    PIPELINE_ROOT = "gs://your temp bucket"
+    # Prepare the pipeline job
+    job = aip.PipelineJob(
+        display_name="diabetes-predictor-ct-pipeline",
+        enable_caching=False,
+        template_path="training_pipeline.yaml",
+        pipeline_root=PIPELINE_ROOT,
+        location=REGION,
+        parameter_values={
+            'project_id': PROJECT_ID,  # makesure to use your project id
+            'data_bucket': 'de2026_data',  # makesure to use your data bucket name
+            'trainset_filename': 'training_set.csv',
+            # makesure to upload these to your data bucket from DE2026/lab4/data
+            'testset_filename': 'prediction_set.csv',
+            # makesure to upload these to your data bucket from DE2026/lab4/data
+            'model_repo': 'de2026_models'  # make sure to use your model bucket name
+        }
+    )
+
+    job.run()
 
 def parse_command_line_arguments():
     parser = argparse.ArgumentParser()
@@ -284,3 +311,4 @@ def parse_command_line_arguments():
 
 if __name__ == '__main__':
     compile_pipeline(**parse_command_line_arguments())
+    # _run_pipeline() - This is only for testing - compile and run the pipeline via CI/CD as we did in Lab4 Live
